@@ -5,38 +5,45 @@ import { useState } from "react";
 function Tarefas() {
   const [texto, setTexto] = useState("");
   const [filtro, setFiltro] = useState("todas");
+
   const [tarefas, setTarefas] = useRecoilState(tarefasState);
 
   const tarefasFiltradas = tarefas.filter((tarefa) => {
     if (filtro === "concluidas") return tarefa.concluida;
     if (filtro === "pendentes") return !tarefa.concluida;
+
     return true;
   });
 
   return (
     <div>
-      <h1>Lista de Tarefas</h1>
+      <h1>Lista de tarefas</h1>
 
-      <button onClick={() => setFiltro("todas")}>Todas</button>
-      <button onClick={() => setFiltro("concluidas")}>Concluídas</button>
-      <button onClick={() => setFiltro("pendentes")}>Pendentes</button>
+      <button onClick={() => setFiltro("todas")}>
+        Todas
+      </button>
 
-      {tarefasFiltradas.map((tarefa, index) => (
-        <li key={index}>
-          <span
-            style={{
-              textDecoration: tarefa.concluida ? "line-through" : "none",
-            }}
-          >
-            {tarefa.texto}
-          </span>
+      <button onClick={() => setFiltro("concluidas")}>
+        Concluídas
+      </button>
+
+      <button onClick={() => setFiltro("pendentes")}>
+        Pendentes
+      </button>
+
+      {tarefasFiltradas.map((tarefa) => (
+        <li key={tarefa.id}>
+          {tarefa.texto}
 
           <button
             onClick={() => {
               setTarefas((antigo) =>
-                antigo.map((item, i) =>
-                  i === index
-                    ? { ...item, concluida: !item.concluida }
+                antigo.map((item) =>
+                  item.id === tarefa.id
+                    ? {
+                        ...item,
+                        concluida: !item.concluida,
+                      }
                     : item
                 )
               );
@@ -48,7 +55,9 @@ function Tarefas() {
           <button
             onClick={() => {
               setTarefas((antigo) =>
-                antigo.filter((_, i) => i !== index)
+                antigo.filter(
+                  (item) => item.id !== tarefa.id
+                )
               );
             }}
           >
@@ -60,7 +69,7 @@ function Tarefas() {
       <input
         value={texto}
         onChange={(e) => setTexto(e.target.value)}
-        placeholder="Digite a sua tarefa"
+        placeholder="Digite a tarefa"
       />
 
       <button
@@ -69,7 +78,11 @@ function Tarefas() {
 
           setTarefas((antigo) => [
             ...antigo,
-            { texto: texto, concluida: false },
+            {
+              id: Date.now(),
+              texto: texto,
+              concluida: false,
+            },
           ]);
 
           setTexto("");
